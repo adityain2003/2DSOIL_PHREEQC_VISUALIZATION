@@ -30,13 +30,7 @@ NUM_DAYS = UNIQUE_DATES.size
 print("NUM_DAYS =", NUM_DAYS)
 
 X_ARRAY = (FIELDS_PD[["X"]].to_numpy())[0:NUM_NODES]
-Y_ARRAY = (FIELDS_PD[["Y"]].to_numpy())[0:NUM_NODES]
-
-THETA_ARRAY = FIELDS_PD[["thNew"]].to_numpy()
-THETA_ARRAY_DATE = NP.zeros(NUM_NODES,dtype=float)     
-
-for I in range(0,NUM_NODES):
-    print(X_ARRAY[I],Y_ARRAY[I],THETA_ARRAY[I])
+Y_ARRAY = (FIELDS_PD[["Y"]].to_numpy())[0:NUM_NODES]   
 
 #X,Y = NP.meshgrid(X_ARRAY,Y_ARRAY)
 X_ARRAY_MIN = NP.min(X_ARRAY)
@@ -47,8 +41,7 @@ Y_ARRAY_MAX = NP.max(Y_ARRAY)
 #print(X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX)
 
 
-FIGURE, AXIS = PLT.subplots(1,1,sharex=True,sharey=True) #(1,1,sharex=True,sharey=True)
-AXIS.set_aspect('equal')
+
 
 X_GRID = NP.linspace(X_ARRAY_MIN,X_ARRAY_MAX,int((X_ARRAY_MAX-X_ARRAY_MIN)/X_Y_STEP_SIZE))
 Y_GRID = NP.linspace(Y_ARRAY_MIN,Y_ARRAY_MAX,int((Y_ARRAY_MAX-Y_ARRAY_MIN)/X_Y_STEP_SIZE))
@@ -58,28 +51,60 @@ X_GRID,Y_GRID = NP.meshgrid(X_GRID,Y_GRID, indexing='xy')
 X_ARRAY_FLATTENED = X_ARRAY.ravel()
 Y_ARRAY_FLATTENED = Y_ARRAY.ravel()
 
-#for J in range(0,NUM_DAYS):
+
+#####################################
+####    ANIMATION AND PLOTTING  #####
+#####################################
+FIGURE, AXIS_ARRAY = PLT.subplots(1,2) #(1,1,sharex=True,sharey=True)
+AXIS_ARRAY_FLATTEN = AXIS_ARRAY.flatten()
+#AXIS_ARRAY[0].set_aspect('equal')
 IMAGE_COLLECTION = []
 
 THETA_ARRAY = FIELDS_PD[["thNew"]].to_numpy()
-THETA_ARRAY_DATE = NP.zeros(NUM_NODES,dtype=float)  
+HNEW_ARRAY = FIELDS_PD[["hNew"]].to_numpy()
+
+for I in range(0,NUM_NODES):
+    print(X_ARRAY[I],Y_ARRAY[I],THETA_ARRAY[I],HNEW_ARRAY[I])
+
 
 J = 153
-#for J in range(0,NUM_DAYS):
-for I in range(0,NUM_NODES):
-    THETA_ARRAY_DATE[I] = THETA_ARRAY[I+J*NUM_NODES]
-#    os.system("pause")
+for J in range(0,2):#,NUM_DAYS):
+    THETA_ARRAY_TIMESTEP = NP.zeros(NUM_NODES,dtype=float)  
+    HNEW_ARRAY_TIMESTEP = NP.zeros(NUM_NODES,dtype=float)
+    for I in range(0,NUM_NODES):
+        THETA_ARRAY_TIMESTEP[I] = THETA_ARRAY[I+J*NUM_NODES]
+        HNEW_ARRAY_TIMESTEP[I] = HNEW_ARRAY[I+J*NUM_NODES]
+    #    os.system("pause")
 
-THETA_RESAMPLED = scipy.interpolate.griddata((X_ARRAY.ravel(),Y_ARRAY.ravel()),THETA_ARRAY_DATE.ravel(),(X_GRID,Y_GRID))
-#X_RESAMPLED = NP.mgrid()
 
-THETA_FIGURE_TIMESTEP = PLT.imshow(THETA_RESAMPLED,
-                               cmap='jet', 
-                               interpolation='bilinear',    #bilinear   # nearest
-                               origin='lower',
-                               extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX],)
+    THETA_RESAMPLED = scipy.interpolate.griddata((X_ARRAY.ravel(),Y_ARRAY.ravel()),THETA_ARRAY_TIMESTEP.ravel(),(X_GRID,Y_GRID))
+    HNEW_RESAMPLED = scipy.interpolate.griddata((X_ARRAY.ravel(),Y_ARRAY.ravel()),HNEW_ARRAY_TIMESTEP.ravel(),(X_GRID,Y_GRID))
 
-PLT.colorbar()
+    #PLT.subplot(1,2,1)
+    THETA_FIGURE_TIMESTEP = AXIS_ARRAY_FLATTEN[0].imshow(THETA_RESAMPLED,
+                                cmap='jet', 
+                                interpolation='bilinear',    #bilinear   # nearest
+                                origin='lower',
+                                extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
+    AXIS_ARRAY_FLATTEN[0].set_title('Theta')
+    
+
+    
+    PLT.subplot(1,2,2)
+    HNEW_FIGURE_TIMESTEP = AXIS_ARRAY_FLATTEN[1].imshow(HNEW_RESAMPLED,
+                                cmap='jet', 
+                                interpolation='bilinear',    #bilinear   # nearest
+                                origin='lower',
+                                extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
+    PLT.subplot(1,2,2).set_title('HNew')
+    #FIGURE.colorbar(HNEW_FIGURE_TIMESTEP, ax = AXIS_ARRAY[1])
+
+    FIGURE.suptitle('State Varibales from 2 D Soil on '+DATE_ARRAY[J])
+
+#    IMAGE_COLLECTION = IMAGE_COLLECTION.append(FIGURE)
+
+FIGURE.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY_FLATTEN[0])#, ax = AXIS_ARRAY[0])
+FIGURE.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY_FLATTEN[1])#, ax = AXIS_ARRAY[0])
 PLT.show()
 
 #print(UNIQUE_DATES)
