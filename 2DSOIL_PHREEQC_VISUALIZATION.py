@@ -58,7 +58,6 @@ Y_ARRAY_FLATTENED = Y_ARRAY.ravel()
 FIGURE, AXIS_ARRAY = PLT.subplots(1,2) #(1,1,sharex=True,sharey=True)
 AXIS_ARRAY_FLATTEN = AXIS_ARRAY.flatten()
 #AXIS_ARRAY[0].set_aspect('equal')
-IMAGE_COLLECTION = []
 
 THETA_ARRAY = FIELDS_PD[["thNew"]].to_numpy()
 HNEW_ARRAY = FIELDS_PD[["hNew"]].to_numpy()
@@ -80,7 +79,7 @@ for J in range(0,2):#,NUM_DAYS):
     THETA_RESAMPLED = scipy.interpolate.griddata((X_ARRAY.ravel(),Y_ARRAY.ravel()),THETA_ARRAY_TIMESTEP.ravel(),(X_GRID,Y_GRID))
     HNEW_RESAMPLED = scipy.interpolate.griddata((X_ARRAY.ravel(),Y_ARRAY.ravel()),HNEW_ARRAY_TIMESTEP.ravel(),(X_GRID,Y_GRID))
 
-    #PLT.subplot(1,2,1)
+    PLT.subplot(1,2,1)
     THETA_FIGURE_TIMESTEP = AXIS_ARRAY_FLATTEN[0].imshow(THETA_RESAMPLED,
                                 cmap='jet', 
                                 interpolation='bilinear',    #bilinear   # nearest
@@ -96,12 +95,10 @@ for J in range(0,2):#,NUM_DAYS):
                                 interpolation='bilinear',    #bilinear   # nearest
                                 origin='lower',
                                 extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
-    PLT.subplot(1,2,2).set_title('HNew')
-    #FIGURE.colorbar(HNEW_FIGURE_TIMESTEP, ax = AXIS_ARRAY[1])
-
+    AXIS_ARRAY_FLATTEN[1].set_title('HNew')
+ 
     FIGURE.suptitle('State Varibales from 2 D Soil on '+DATE_ARRAY[J])
-
-#    IMAGE_COLLECTION = IMAGE_COLLECTION.append(FIGURE)
+ 
 
 FIGURE.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY_FLATTEN[0])#, ax = AXIS_ARRAY[0])
 FIGURE.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY_FLATTEN[1])#, ax = AXIS_ARRAY[0])
