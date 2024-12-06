@@ -100,8 +100,8 @@ HNEW_FIGURE_TIMESTEP = AXIS_ARRAY[1].imshow(HNEW_RESAMPLED, #animated = True,
                             extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
 AXIS_ARRAY[1].set_title('HNew')
 
-FIGURE.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY[0])#, ax = AXIS_ARRAY[0])
-FIGURE.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY[1])#, ax = AXIS_ARRAY[0]) 
+FIGURE.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY[0])
+FIGURE.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY[1]) 
 
 
 def DATE_SEQUENCE(J):
@@ -117,23 +117,26 @@ def DATE_SEQUENCE(J):
     THETA_RESAMPLED = scipy.interpolate.griddata((X_ARRAY.ravel(),Y_ARRAY.ravel()),THETA_ARRAY_TIMESTEP.ravel(),(X_GRID,Y_GRID))
     HNEW_RESAMPLED = scipy.interpolate.griddata((X_ARRAY.ravel(),Y_ARRAY.ravel()),HNEW_ARRAY_TIMESTEP.ravel(),(X_GRID,Y_GRID))
 
+
+    THETA_FIGURE_TIMESTEP.set_array(THETA_RESAMPLED)
+    HNEW_FIGURE_TIMESTEP.set_array(HNEW_RESAMPLED)
     #PLT.subplot(1,2,1)
-    THETA_FIGURE_TIMESTEP = AXIS_ARRAY[0].imshow(THETA_RESAMPLED, #animated = True,
-                                cmap='jet', 
-                                interpolation='bilinear',    #bilinear   # nearest
-                                origin='lower',
-                                extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
+    # THETA_FIGURE_TIMESTEP = AXIS_ARRAY[0].imshow(THETA_RESAMPLED, #animated = True,
+    #                             cmap='jet', 
+    #                             interpolation='bilinear',    #bilinear   # nearest
+    #                             origin='lower',
+    #                             extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
     #AXIS_ARRAY_FLATTEN[0].set_title('Theta')
         
     #PLT.subplot(122)
-    HNEW_FIGURE_TIMESTEP = AXIS_ARRAY[1].imshow(HNEW_RESAMPLED, #animated = True,
-                                cmap='jet', 
-                                interpolation='bilinear',    #bilinear   # nearest
-                                origin='lower',
-                                extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
+    # HNEW_FIGURE_TIMESTEP = AXIS_ARRAY[1].imshow(HNEW_RESAMPLED, #animated = True,
+    #                             cmap='jet', 
+    #                             interpolation='bilinear',    #bilinear   # nearest
+    #                             origin='lower',
+    #                             extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
 
-    #FIGURE.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY_FLATTEN[0])#, ax = AXIS_ARRAY[0])
-    #FIGURE.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY_FLATTEN[1])#, ax = AXIS_ARRAY[0]) 
+    #FIGURE.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY[0])#, ax = AXIS_ARRAY[0])
+    #FIGURE.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY[1])#, ax = AXIS_ARRAY[0]) 
 
     #AXIS_ARRAY_FLATTEN[1].set_title('HNew')
     #FIGURE_UPDATED.add_subplot(122)
@@ -143,7 +146,7 @@ def DATE_SEQUENCE(J):
     
 
 
-    IMAGE_TIMESTEP = []
+    #IMAGE_TIMESTEP = []
 
     #IMAGE_COLLECTION.append(THETA_FIGURE_TIMESTEP)
     #IMAGE_COLLECTION.append(HNEW_FIGURE_TIMESTEP)
