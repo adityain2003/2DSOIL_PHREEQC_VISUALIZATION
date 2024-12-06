@@ -7,6 +7,7 @@ import scipy.interpolate
 import matplotlib.animation as animation
 import ffmpeg
 from IPython.display import clear_output, display
+from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 import time
 import os
 
@@ -43,9 +44,6 @@ Y_ARRAY_MAX = NP.max(Y_ARRAY)
 #print("X_ARRAY_MIN","X_ARRAY_MAX","Y_ARRAY_MIN","Y_ARRAY_MAX")
 #print(X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX)
 
-
-
-
 X_GRID = NP.linspace(X_ARRAY_MIN,X_ARRAY_MAX,int((X_ARRAY_MAX-X_ARRAY_MIN)/X_Y_STEP_SIZE))
 Y_GRID = NP.linspace(Y_ARRAY_MIN,Y_ARRAY_MAX,int((Y_ARRAY_MAX-Y_ARRAY_MIN)/X_Y_STEP_SIZE))
 
@@ -54,117 +52,80 @@ X_GRID,Y_GRID = NP.meshgrid(X_GRID,Y_GRID, indexing='xy')
 X_ARRAY_FLATTENED = X_ARRAY.ravel()
 Y_ARRAY_FLATTENED = Y_ARRAY.ravel()
 
-
+THETA_ARRAY = FIELDS_PD[["thNew"]].to_numpy()
+HNEW_ARRAY = FIELDS_PD[["hNew"]].to_numpy()
 #####################################
 ####    ANIMATION AND PLOTTING  #####
 #####################################
 FIGURE, AXIS_ARRAY = PLT.subplots(1,2) #(1,1,sharex=True,sharey=True)
-AXIS_ARRAY_FLATTEN = AXIS_ARRAY.flatten()
-#AXIS_ARRAY[0].set_aspect('equal')
 
-THETA_ARRAY = FIELDS_PD[["thNew"]].to_numpy()
-HNEW_ARRAY = FIELDS_PD[["hNew"]].to_numpy()
+#AXIS_ARRAY[0].set_aspect('equal')
 
 IMAGE_COLLECTION = []
 
-for I in range(0,NUM_NODES):
-    print(X_ARRAY[I],Y_ARRAY[I],THETA_ARRAY[I],HNEW_ARRAY[I])
+J = 0
 
 THETA_ARRAY_TIMESTEP = NP.zeros(NUM_NODES,dtype=float)  
 HNEW_ARRAY_TIMESTEP = NP.zeros(NUM_NODES,dtype=float)
 
-FIGURE, AXIS_ARRAY = PLT.subplots(1,2) #(1,1,sharex=True,sharey=True)
-AXIS_ARRAY_FLATTEN = AXIS_ARRAY.flatten()
-
-FIGURE_UPDATED = PLT.figure()
-
-J = 0
-for I in range(0,NUM_NODES):
-    THETA_ARRAY_TIMESTEP[I] = THETA_ARRAY[I+J*NUM_NODES]
-    HNEW_ARRAY_TIMESTEP[I] = HNEW_ARRAY[I+J*NUM_NODES]
-
 THETA_RESAMPLED = scipy.interpolate.griddata((X_ARRAY.ravel(),Y_ARRAY.ravel()),THETA_ARRAY_TIMESTEP.ravel(),(X_GRID,Y_GRID))
 HNEW_RESAMPLED = scipy.interpolate.griddata((X_ARRAY.ravel(),Y_ARRAY.ravel()),HNEW_ARRAY_TIMESTEP.ravel(),(X_GRID,Y_GRID))
 
-THETA_FIGURE_TIMESTEP = AXIS_ARRAY_FLATTEN[0].imshow(THETA_RESAMPLED, #animated = True,
-                            cmap='jet', 
-                            interpolation='bilinear',    #bilinear   # nearest
-                            origin='lower',
-                            extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
-AXIS_ARRAY_FLATTEN[0].set_title('Theta')
+THETA_FIGURE_TIMESTEP = AXIS_ARRAY[0].imshow(THETA_RESAMPLED, animated = True,
+                                cmap='jet', 
+                                interpolation='bilinear',    #bilinear   # nearest
+                                origin='lower',
+                                extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
 
-PLT.subplot(122)
-HNEW_FIGURE_TIMESTEP = AXIS_ARRAY_FLATTEN[1].imshow(HNEW_RESAMPLED, #animated = True,
-                            cmap='jet', 
-                            interpolation='bilinear',    #bilinear   # nearest
-                            origin='lower',
-                            extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
-AXIS_ARRAY_FLATTEN[1].set_title('HNew')
+AXIS_ARRAY[0].set_title('Theta')
 
-FIGURE.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY_FLATTEN[0])#, ax = AXIS_ARRAY[0])
-FIGURE.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY_FLATTEN[1])#, ax = AXIS_ARRAY[0]) 
+HNEW_FIGURE_TIMESTEP = AXIS_ARRAY[1].imshow(HNEW_RESAMPLED, animated = True,
+                                cmap='jet', 
+                                interpolation='bilinear',    #bilinear   # nearest
+                                origin='lower',
+                                extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
+
+AXIS_ARRAY[1].set_title('HNew')
+
+FIGURE.suptitle('State Variables from 2 D Soil on '+UNIQUE_DATES[J])
+
 
 
 def DATE_SEQUENCE(J):
-#for J in range(0,5):#,NUM_DAYS):
-    #FIGURE_UPDATED = PLT.figure()
-    #PLT.cla()
-    #FIGURE.clf(True)
+#    PLT.clf()
+
     FIGURE.suptitle('State Variables from 2 D Soil on '+UNIQUE_DATES[J])
-    #FIGURE_UPDATED.suptitle('UPDATED State Variables from 2 D Soil on '+UNIQUE_DATES[J])
 
     for I in range(0,NUM_NODES):
         THETA_ARRAY_TIMESTEP[I] = THETA_ARRAY[I+J*NUM_NODES]
         HNEW_ARRAY_TIMESTEP[I] = HNEW_ARRAY[I+J*NUM_NODES]
     #    os.system("pause")
 
-
     THETA_RESAMPLED = scipy.interpolate.griddata((X_ARRAY.ravel(),Y_ARRAY.ravel()),THETA_ARRAY_TIMESTEP.ravel(),(X_GRID,Y_GRID))
     HNEW_RESAMPLED = scipy.interpolate.griddata((X_ARRAY.ravel(),Y_ARRAY.ravel()),HNEW_ARRAY_TIMESTEP.ravel(),(X_GRID,Y_GRID))
-
+    
     #PLT.subplot(1,2,1)
-    THETA_FIGURE_TIMESTEP = AXIS_ARRAY_FLATTEN[0].imshow(THETA_RESAMPLED, #animated = True,
+    THETA_FIGURE_TIMESTEP = AXIS_ARRAY[0].imshow(THETA_RESAMPLED, animated = True,
                                 cmap='jet', 
                                 interpolation='bilinear',    #bilinear   # nearest
                                 origin='lower',
                                 extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
-    #AXIS_ARRAY_FLATTEN[0].set_title('Theta')
-        
+    
+
+    FIGURE.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY[0])
+
     #PLT.subplot(122)
-    HNEW_FIGURE_TIMESTEP = AXIS_ARRAY_FLATTEN[1].imshow(HNEW_RESAMPLED, #animated = True,
+    HNEW_FIGURE_TIMESTEP = AXIS_ARRAY[1].imshow(HNEW_RESAMPLED, animated = True,
                                 cmap='jet', 
                                 interpolation='bilinear',    #bilinear   # nearest
                                 origin='lower',
                                 extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
 
-    FIGURE.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY_FLATTEN[0])#, ax = AXIS_ARRAY[0])
-    FIGURE.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY_FLATTEN[1])#, ax = AXIS_ARRAY[0]) 
-
-    #AXIS_ARRAY_FLATTEN[1].set_title('HNew')
-    #FIGURE_UPDATED.add_subplot(122)
     
-
-    #FIGURE_UPDATED = FIGURE
-    
+    FIGURE.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY[1])#, ax = AXIS_ARRAY[0]) 
 
 
-    IMAGE_TIMESTEP = []
-
-    #IMAGE_COLLECTION.append(THETA_FIGURE_TIMESTEP)
-    #IMAGE_COLLECTION.append(HNEW_FIGURE_TIMESTEP)
-    #return IMAGE_TIMESTEP
-
-    #PLT.ioff()
-    #display(PLT.gcf())
-    #PLT.show()
-    #PLT.close()
-    
-    #PLT.ioff()
-    #PLT.show()
-
-#PLT.colorbar()  
-
-ANIMATION = animation.FuncAnimation(FIGURE, DATE_SEQUENCE, frames=range(1,10),repeat=False)
+ANIMATION = animation.FuncAnimation(FIGURE, DATE_SEQUENCE, frames=range(0,5),repeat=False)
 
 PLT.show()
 #ANIMATION.save(filename="Animation_1.mpeg", writer=animation.FFMpegWriter())
