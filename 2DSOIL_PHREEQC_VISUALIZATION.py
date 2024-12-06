@@ -40,11 +40,9 @@ X_ARRAY_MIN = NP.min(X_ARRAY)
 X_ARRAY_MAX = NP.max(X_ARRAY)
 Y_ARRAY_MIN = NP.min(Y_ARRAY)
 Y_ARRAY_MAX = NP.max(Y_ARRAY)
+
 #print("X_ARRAY_MIN","X_ARRAY_MAX","Y_ARRAY_MIN","Y_ARRAY_MAX")
 #print(X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX)
-
-
-
 
 X_GRID = NP.linspace(X_ARRAY_MIN,X_ARRAY_MAX,int((X_ARRAY_MAX-X_ARRAY_MIN)/X_Y_STEP_SIZE))
 Y_GRID = NP.linspace(Y_ARRAY_MIN,Y_ARRAY_MAX,int((Y_ARRAY_MAX-Y_ARRAY_MIN)/X_Y_STEP_SIZE))
@@ -59,11 +57,16 @@ Y_ARRAY_FLATTENED = Y_ARRAY.ravel()
 ####    ANIMATION AND PLOTTING  #####
 #####################################
 FIGURE, AXIS_ARRAY = PLT.subplots(1,2) #(1,1,sharex=True,sharey=True)
-AXIS_ARRAY_FLATTEN = AXIS_ARRAY.flatten()
 #AXIS_ARRAY[0].set_aspect('equal')
 
 THETA_ARRAY = FIELDS_PD[["thNew"]].to_numpy()
 HNEW_ARRAY = FIELDS_PD[["hNew"]].to_numpy()
+
+THETA_ARRAY_MIN = NP.min(THETA_ARRAY)
+THETA_ARRAY_MAX = NP.max(THETA_ARRAY)
+
+HNEW_ARRAY_MIN = NP.min(HNEW_ARRAY)
+HNEW_ARRAY_MAX = NP.max(HNEW_ARRAY)
 
 IMAGE_COLLECTION = []
 
@@ -74,9 +77,6 @@ THETA_ARRAY_TIMESTEP = NP.zeros(NUM_NODES,dtype=float)
 HNEW_ARRAY_TIMESTEP = NP.zeros(NUM_NODES,dtype=float)
 
 FIGURE, AXIS_ARRAY = PLT.subplots(1,2) #(1,1,sharex=True,sharey=True)
-AXIS_ARRAY_FLATTEN = AXIS_ARRAY.flatten()
-
-FIGURE_UPDATED = PLT.figure()
 
 J = 0
 for I in range(0,NUM_NODES):
@@ -86,32 +86,27 @@ for I in range(0,NUM_NODES):
 THETA_RESAMPLED = scipy.interpolate.griddata((X_ARRAY.ravel(),Y_ARRAY.ravel()),THETA_ARRAY_TIMESTEP.ravel(),(X_GRID,Y_GRID))
 HNEW_RESAMPLED = scipy.interpolate.griddata((X_ARRAY.ravel(),Y_ARRAY.ravel()),HNEW_ARRAY_TIMESTEP.ravel(),(X_GRID,Y_GRID))
 
-THETA_FIGURE_TIMESTEP = AXIS_ARRAY_FLATTEN[0].imshow(THETA_RESAMPLED, #animated = True,
+THETA_FIGURE_TIMESTEP = AXIS_ARRAY[0].imshow(THETA_RESAMPLED, #animated = True,
                             cmap='jet', 
                             interpolation='bilinear',    #bilinear   # nearest
                             origin='lower',
                             extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
-AXIS_ARRAY_FLATTEN[0].set_title('Theta')
+AXIS_ARRAY[0].set_title('Theta')
 
-PLT.subplot(122)
-HNEW_FIGURE_TIMESTEP = AXIS_ARRAY_FLATTEN[1].imshow(HNEW_RESAMPLED, #animated = True,
+HNEW_FIGURE_TIMESTEP = AXIS_ARRAY[1].imshow(HNEW_RESAMPLED, #animated = True,
                             cmap='jet', 
                             interpolation='bilinear',    #bilinear   # nearest
                             origin='lower',
                             extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
-AXIS_ARRAY_FLATTEN[1].set_title('HNew')
+AXIS_ARRAY[1].set_title('HNew')
 
-FIGURE.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY_FLATTEN[0])#, ax = AXIS_ARRAY[0])
-FIGURE.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY_FLATTEN[1])#, ax = AXIS_ARRAY[0]) 
+FIGURE.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY[0])#, ax = AXIS_ARRAY[0])
+FIGURE.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY[1])#, ax = AXIS_ARRAY[0]) 
 
 
 def DATE_SEQUENCE(J):
-#for J in range(0,5):#,NUM_DAYS):
-    #FIGURE_UPDATED = PLT.figure()
-    #PLT.cla()
-    #FIGURE.clf(True)
+
     FIGURE.suptitle('State Variables from 2 D Soil on '+UNIQUE_DATES[J])
-    #FIGURE_UPDATED.suptitle('UPDATED State Variables from 2 D Soil on '+UNIQUE_DATES[J])
 
     for I in range(0,NUM_NODES):
         THETA_ARRAY_TIMESTEP[I] = THETA_ARRAY[I+J*NUM_NODES]
@@ -123,7 +118,7 @@ def DATE_SEQUENCE(J):
     HNEW_RESAMPLED = scipy.interpolate.griddata((X_ARRAY.ravel(),Y_ARRAY.ravel()),HNEW_ARRAY_TIMESTEP.ravel(),(X_GRID,Y_GRID))
 
     #PLT.subplot(1,2,1)
-    THETA_FIGURE_TIMESTEP = AXIS_ARRAY_FLATTEN[0].imshow(THETA_RESAMPLED, #animated = True,
+    THETA_FIGURE_TIMESTEP = AXIS_ARRAY[0].imshow(THETA_RESAMPLED, #animated = True,
                                 cmap='jet', 
                                 interpolation='bilinear',    #bilinear   # nearest
                                 origin='lower',
@@ -131,14 +126,14 @@ def DATE_SEQUENCE(J):
     #AXIS_ARRAY_FLATTEN[0].set_title('Theta')
         
     #PLT.subplot(122)
-    HNEW_FIGURE_TIMESTEP = AXIS_ARRAY_FLATTEN[1].imshow(HNEW_RESAMPLED, #animated = True,
+    HNEW_FIGURE_TIMESTEP = AXIS_ARRAY[1].imshow(HNEW_RESAMPLED, #animated = True,
                                 cmap='jet', 
                                 interpolation='bilinear',    #bilinear   # nearest
                                 origin='lower',
                                 extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
 
-    FIGURE.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY_FLATTEN[0])#, ax = AXIS_ARRAY[0])
-    FIGURE.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY_FLATTEN[1])#, ax = AXIS_ARRAY[0]) 
+    #FIGURE.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY_FLATTEN[0])#, ax = AXIS_ARRAY[0])
+    #FIGURE.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY_FLATTEN[1])#, ax = AXIS_ARRAY[0]) 
 
     #AXIS_ARRAY_FLATTEN[1].set_title('HNew')
     #FIGURE_UPDATED.add_subplot(122)
