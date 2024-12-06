@@ -5,6 +5,9 @@ import numpy as NP
 import pandas as PD
 import scipy.interpolate
 import matplotlib.animation as animation
+import ffmpeg
+from IPython.display import clear_output, display
+import time
 import os
 
 # FILE = open("TEST_FILE.txt", "r" )
@@ -62,14 +65,18 @@ AXIS_ARRAY_FLATTEN = AXIS_ARRAY.flatten()
 THETA_ARRAY = FIELDS_PD[["thNew"]].to_numpy()
 HNEW_ARRAY = FIELDS_PD[["hNew"]].to_numpy()
 
+IMAGE_COLLECTION = []
+
 for I in range(0,NUM_NODES):
     print(X_ARRAY[I],Y_ARRAY[I],THETA_ARRAY[I],HNEW_ARRAY[I])
 
+THETA_ARRAY_TIMESTEP = NP.zeros(NUM_NODES,dtype=float)  
+HNEW_ARRAY_TIMESTEP = NP.zeros(NUM_NODES,dtype=float)
 
-J = 153
-for J in range(0,2):#,NUM_DAYS):
-    THETA_ARRAY_TIMESTEP = NP.zeros(NUM_NODES,dtype=float)  
-    HNEW_ARRAY_TIMESTEP = NP.zeros(NUM_NODES,dtype=float)
+for J in range(0,5):#,NUM_DAYS):
+    FIGURE, AXIS_ARRAY = PLT.subplots(1,2) #(1,1,sharex=True,sharey=True)
+    AXIS_ARRAY_FLATTEN = AXIS_ARRAY.flatten()
+    FIGURE.suptitle('State Variables from 2 D Soil on '+UNIQUE_DATES[J])
     for I in range(0,NUM_NODES):
         THETA_ARRAY_TIMESTEP[I] = THETA_ARRAY[I+J*NUM_NODES]
         HNEW_ARRAY_TIMESTEP[I] = HNEW_ARRAY[I+J*NUM_NODES]
@@ -79,30 +86,53 @@ for J in range(0,2):#,NUM_DAYS):
     THETA_RESAMPLED = scipy.interpolate.griddata((X_ARRAY.ravel(),Y_ARRAY.ravel()),THETA_ARRAY_TIMESTEP.ravel(),(X_GRID,Y_GRID))
     HNEW_RESAMPLED = scipy.interpolate.griddata((X_ARRAY.ravel(),Y_ARRAY.ravel()),HNEW_ARRAY_TIMESTEP.ravel(),(X_GRID,Y_GRID))
 
-    PLT.subplot(1,2,1)
-    THETA_FIGURE_TIMESTEP = AXIS_ARRAY_FLATTEN[0].imshow(THETA_RESAMPLED,
+    #PLT.subplot(1,2,1)
+    THETA_FIGURE_TIMESTEP = AXIS_ARRAY_FLATTEN[0].imshow(THETA_RESAMPLED, animated = True,
                                 cmap='jet', 
                                 interpolation='bilinear',    #bilinear   # nearest
                                 origin='lower',
                                 extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
     AXIS_ARRAY_FLATTEN[0].set_title('Theta')
-    
-
-    
-    PLT.subplot(1,2,2)
-    HNEW_FIGURE_TIMESTEP = AXIS_ARRAY_FLATTEN[1].imshow(HNEW_RESAMPLED,
+        
+    #PLT.subplot(1,2,2)
+    HNEW_FIGURE_TIMESTEP = AXIS_ARRAY_FLATTEN[1].imshow(HNEW_RESAMPLED, animated = True,
                                 cmap='jet', 
                                 interpolation='bilinear',    #bilinear   # nearest
                                 origin='lower',
                                 extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
     AXIS_ARRAY_FLATTEN[1].set_title('HNew')
- 
-    FIGURE.suptitle('State Varibales from 2 D Soil on '+DATE_ARRAY[J])
- 
 
-FIGURE.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY_FLATTEN[0])#, ax = AXIS_ARRAY[0])
-FIGURE.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY_FLATTEN[1])#, ax = AXIS_ARRAY[0])
+    FIGURE.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY_FLATTEN[0])#, ax = AXIS_ARRAY[0])
+    FIGURE.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY_FLATTEN[1])#, ax = AXIS_ARRAY[0]) 
+
+    IMAGE_COLLECTION.append(FIGURE)
+    PLT.ioff()
+    display(PLT.gcf())
+    #clear_output(wait=True)
+    #time.sleep(0.5)
+    PLT.show()
+    PLT.close()
+    
+    #PLT.ioff()
+    #PLT.show()
+
+  
+
+ANIMATION = animation.ArtistAnimation(FIGURE,IMAGE_COLLECTION,interval = 50)
+
 PLT.show()
+#ANIMATION.save(filename="Animation_1.mpeg", writer=animation.FFMpegWriter())
+
+
+PLT.ioff()
+PLT.show()
+
+
+
+
+
+
+
 
 #print(UNIQUE_DATES)
 print(X_ARRAY)
