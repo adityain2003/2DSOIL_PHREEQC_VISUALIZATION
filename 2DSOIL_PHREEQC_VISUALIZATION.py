@@ -7,6 +7,10 @@ import scipy.interpolate
 import matplotlib.animation as animation
 import ffmpeg
 from IPython.display import clear_output, display
+from matplotlib import cm
+from matplotlib.animation import PillowWriter
+import matplotlib.cbook as cbook
+import matplotlib.colors as COLORS
 import time
 import os
 
@@ -90,23 +94,30 @@ THETA_FIGURE_TIMESTEP = AXIS_ARRAY[0].imshow(THETA_RESAMPLED, #animated = True,
                             cmap='jet', 
                             interpolation='bilinear',    #bilinear   # nearest
                             origin='lower',
-                            extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
+                            norm = COLORS.Normalize(vmin=THETA_ARRAY_MIN, vmax=THETA_ARRAY_MAX),
+#                            vmin = vmin,
+#                            vmax = vmax,
+                            extent = [X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
 AXIS_ARRAY[0].set_title('Theta')
 
 HNEW_FIGURE_TIMESTEP = AXIS_ARRAY[1].imshow(HNEW_RESAMPLED, #animated = True,
                             cmap='jet', 
                             interpolation='bilinear',    #bilinear   # nearest
                             origin='lower',
-                            extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
+                            #norm = COLORS.LogNorm(vmin=0,vmax=1),#COLORS.LogNorm(),#(vmin = HNEW_ARRAY_MIN ,vmax = HNEW_ARRAY_MAX),
+                            #vmin=HNEW_ARRAY_TIMESTEP.max(), 
+                            #vmax=HNEW_ARRAY_TIMESTEP.min(),
+                            extent = [X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
 AXIS_ARRAY[1].set_title('HNew')
 
-FIGURE.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY[0])
-FIGURE.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY[1]) 
+
+PLT.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY[0],boundaries = NP.linspace(THETA_ARRAY_MIN,THETA_ARRAY_MAX,6))
+PLT.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY[1])#,boundaries =NP.linspace(-1000,0,10)) 
 
 
 def DATE_SEQUENCE(J):
 
-    FIGURE.suptitle('State Variables from 2 D Soil on '+UNIQUE_DATES[J])
+    FIGURE.suptitle('#AK State Variables from 2 D Soil on '+UNIQUE_DATES[J])
 
     for I in range(0,NUM_NODES):
         THETA_ARRAY_TIMESTEP[I] = THETA_ARRAY[I+J*NUM_NODES]
@@ -120,54 +131,14 @@ def DATE_SEQUENCE(J):
 
     THETA_FIGURE_TIMESTEP.set_array(THETA_RESAMPLED)
     HNEW_FIGURE_TIMESTEP.set_array(HNEW_RESAMPLED)
-    #PLT.subplot(1,2,1)
-    # THETA_FIGURE_TIMESTEP = AXIS_ARRAY[0].imshow(THETA_RESAMPLED, #animated = True,
-    #                             cmap='jet', 
-    #                             interpolation='bilinear',    #bilinear   # nearest
-    #                             origin='lower',
-    #                             extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
-    #AXIS_ARRAY_FLATTEN[0].set_title('Theta')
-        
-    #PLT.subplot(122)
-    # HNEW_FIGURE_TIMESTEP = AXIS_ARRAY[1].imshow(HNEW_RESAMPLED, #animated = True,
-    #                             cmap='jet', 
-    #                             interpolation='bilinear',    #bilinear   # nearest
-    #                             origin='lower',
-    #                             extent=[X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
+ 
 
-    #FIGURE.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY[0])#, ax = AXIS_ARRAY[0])
-    #FIGURE.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY[1])#, ax = AXIS_ARRAY[0]) 
+ANIMATION = animation.FuncAnimation(FIGURE, DATE_SEQUENCE, frames=range(0,NUM_DAYS),repeat=False)
 
-    #AXIS_ARRAY_FLATTEN[1].set_title('HNew')
-    #FIGURE_UPDATED.add_subplot(122)
-    
-
-    #FIGURE_UPDATED = FIGURE
-    
-
-
-    #IMAGE_TIMESTEP = []
-
-    #IMAGE_COLLECTION.append(THETA_FIGURE_TIMESTEP)
-    #IMAGE_COLLECTION.append(HNEW_FIGURE_TIMESTEP)
-    #return IMAGE_TIMESTEP
-
-    #PLT.ioff()
-    #display(PLT.gcf())
-    #PLT.show()
-    #PLT.close()
-    
-    #PLT.ioff()
-    #PLT.show()
-
-#PLT.colorbar()  
-
-ANIMATION = animation.FuncAnimation(FIGURE, DATE_SEQUENCE, frames=range(1,10),repeat=False)
-
-PLT.show()
+PLT.show(block = False)
 #ANIMATION.save(filename="Animation_1.mpeg", writer=animation.FFMpegWriter())
-
-
+ANIMATION.save("ANIMATION_AK.mp4", dpi=600, writer=PillowWriter(fps=2))
+PLT.close()
 #PLT.ioff()
 #PLT.show()
 
