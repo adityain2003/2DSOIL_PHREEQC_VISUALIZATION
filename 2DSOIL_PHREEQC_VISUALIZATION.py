@@ -137,7 +137,7 @@ ANIMATION = animation.FuncAnimation(FIGURE, DATE_SEQUENCE, frames=range(0,NUM_DA
 
 PLT.show(block = False)
 #ANIMATION.save(filename="Animation_1.mpeg", writer=animation.FFMpegWriter())
-ANIMATION.save("ANIMATION_AK.mp4", dpi=600, writer=PillowWriter(fps=2))
+ANIMATION.save("ANIMATION_AK.GIF", dpi=600, writer=PillowWriter(fps=2))
 PLT.close()
 #PLT.ioff()
 #PLT.show()
