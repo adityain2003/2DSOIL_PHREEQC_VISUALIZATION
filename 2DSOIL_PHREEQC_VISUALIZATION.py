@@ -12,6 +12,7 @@ from matplotlib import cm
 from matplotlib.animation import PillowWriter
 import matplotlib.cbook as cbook
 import matplotlib.colors as COLORS
+import seaborn as SNS
 import time
 import os
 
