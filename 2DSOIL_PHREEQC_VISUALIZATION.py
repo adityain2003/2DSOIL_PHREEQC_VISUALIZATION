@@ -10,6 +10,7 @@ import ffmpeg
 from IPython.display import clear_output, display
 from matplotlib import cm
 from matplotlib.animation import PillowWriter
+from matplotlib.axes import Subplot
 import matplotlib.cbook as cbook
 import matplotlib.colors as COLORS
 import seaborn as SNS
@@ -62,7 +63,7 @@ Y_ARRAY_FLATTENED = Y_ARRAY.ravel()
 #####################################
 ####    ANIMATION AND PLOTTING  #####
 #####################################
-FIGURE, AXIS_ARRAY = PLT.subplots(1,2) #(1,1,sharex=True,sharey=True)
+
 #AXIS_ARRAY[0].set_aspect('equal')
 
 THETA_ARRAY = FIELDS_PD[["thNew"]].to_numpy()
@@ -82,43 +83,51 @@ for I in range(0,NUM_NODES):
 THETA_ARRAY_TIMESTEP = NP.zeros(NUM_NODES,dtype=float)  
 HNEW_ARRAY_TIMESTEP = NP.zeros(NUM_NODES,dtype=float)
 
-FIGURE, AXIS_ARRAY = PLT.subplots(1,2) #(1,1,sharex=True,sharey=True)
+#FIGURE, (AXIS_ARRAY,CBAR_AXIS_ARRAY) = PLT.subplots(1,2,sharex=True,sharey=True) #(1,1,sharex=True,sharey=True)
+
+#FIGURE, CBAR_AXIS_ARRAY = PLT.subplots(1,2)
 
 J = 0
 for I in range(0,NUM_NODES):
     THETA_ARRAY_TIMESTEP[I] = THETA_ARRAY[I+J*NUM_NODES]
     HNEW_ARRAY_TIMESTEP[I] = HNEW_ARRAY[I+J*NUM_NODES]
 
+
 THETA_RESAMPLED = scipy.interpolate.griddata((X_ARRAY.ravel(),Y_ARRAY.ravel()),THETA_ARRAY_TIMESTEP.ravel(),(X_GRID,Y_GRID))
 HNEW_RESAMPLED = scipy.interpolate.griddata((X_ARRAY.ravel(),Y_ARRAY.ravel()),HNEW_ARRAY_TIMESTEP.ravel(),(X_GRID,Y_GRID))
 
-THETA_FIGURE_TIMESTEP = AXIS_ARRAY[0].imshow(THETA_RESAMPLED, #animated = True,
-                            cmap='jet', 
-                            interpolation='bilinear',    #bilinear   # nearest
-                            origin='lower',
-                            norm = COLORS.Normalize(vmin=THETA_ARRAY_MIN, vmax=THETA_ARRAY_MAX),
-#                            vmin = vmin,
-#                            vmax = vmax,
-                            extent = [X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
-AXIS_ARRAY[0].set_title('Theta')
-
-HNEW_FIGURE_TIMESTEP = AXIS_ARRAY[1].imshow(HNEW_RESAMPLED, #animated = True,
-                            cmap='jet', 
-                            interpolation='bilinear',    #bilinear   # nearest
-                            origin='lower',
-                            #norm = COLORS.LogNorm(vmin=0,vmax=1),#COLORS.LogNorm(),#(vmin = HNEW_ARRAY_MIN ,vmax = HNEW_ARRAY_MAX),
-                            #vmin=HNEW_ARRAY_TIMESTEP.max(), 
-                            #vmax=HNEW_ARRAY_TIMESTEP.min(),
-                            extent = [X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
-AXIS_ARRAY[1].set_title('HNew')
 
 
-PLT.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY[0],boundaries = NP.linspace(THETA_ARRAY_MIN,THETA_ARRAY_MAX,6))
-PLT.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY[1])#,boundaries =NP.linspace(-1000,0,10)) 
+#THETA_FIGURE_TIMESTEP = SNS.heatmap(ax = AXIS_ARRAY[0], data = THETA_RESAMPLED, cmap = 'jet',cbar = True)
+#HNEW_FIGURE_TIMESTEP = SNS.heatmap(ax = AXIS_ARRAY[1], data = HNEW_RESAMPLED, cmap = 'jet',cbar = True)
+
+# THETA_FIGURE_TIMESTEP = AXIS_ARRAY[0].imshow(THETA_RESAMPLED, #animated = True,
+#                             cmap='jet', 
+#                             interpolation='bilinear',    #bilinear   # nearest
+#                             origin='lower',
+#                             norm = COLORS.Normalize(vmin=THETA_ARRAY_MIN, vmax=THETA_ARRAY_MAX),
+# #                            vmin = vmin,
+# #                            vmax = vmax,
+#                             extent = [X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
+#AXIS_ARRAY[0].set_title('Theta')
+
+# HNEW_FIGURE_TIMESTEP = AXIS_ARRAY[1].imshow(HNEW_RESAMPLED, #animated = True,
+#                             cmap='jet', 
+#                             interpolation='bilinear',    #bilinear   # nearest
+#                             origin='lower',
+#                             #norm = COLORS.LogNorm(vmin=0,vmax=1),#COLORS.LogNorm(),#(vmin = HNEW_ARRAY_MIN ,vmax = HNEW_ARRAY_MAX),
+#                             #vmin=HNEW_ARRAY_TIMESTEP.max(), 
+#                             #vmax=HNEW_ARRAY_TIMESTEP.min(),
+#                             extent = [X_ARRAY_MIN,X_ARRAY_MAX,Y_ARRAY_MIN,Y_ARRAY_MAX])
+#AXIS_ARRAY[1].set_title('HNew')
+
+
+#PLT.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY[0],boundaries = NP.linspace(THETA_ARRAY_MIN,THETA_ARRAY_MAX,6))
+#PLT.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY[1])#,boundaries =NP.linspace(-1000,0,10)) 
 
 
 def DATE_SEQUENCE(J):
-
+    global THETA_RESAMPLED,HNEW_RESAMPLED
     FIGURE.suptitle('#AK State Variables from 2 D Soil on '+UNIQUE_DATES[J])
 
     for I in range(0,NUM_NODES):
@@ -131,18 +140,33 @@ def DATE_SEQUENCE(J):
     HNEW_RESAMPLED = scipy.interpolate.griddata((X_ARRAY.ravel(),Y_ARRAY.ravel()),HNEW_ARRAY_TIMESTEP.ravel(),(X_GRID,Y_GRID))
 
 
-    THETA_FIGURE_TIMESTEP.set_array(THETA_RESAMPLED)
-    HNEW_FIGURE_TIMESTEP.set_array(HNEW_RESAMPLED)
+#    THETA_FIGURE_TIMESTEP.set_array(THETA_RESAMPLED)
+#    HNEW_FIGURE_TIMESTEP.set_array(HNEW_RESAMPLED)
+#    PLT.clf()
+#    AXIS_ARRAY[0].cla()
+#    AXIS_ARRAY[1].cla()
+
+#    THETA_FIGURE_TIMESTEP = SNS.heatmap(ax = AXIS_ARRAY[0], data = THETA_RESAMPLED, cmap = 'jet',cbar = True,cbar_ax=CBAR_AXIS_ARRAY)
+#    HNEW_FIGURE_TIMESTEP = SNS.heatmap(ax = AXIS_ARRAY[1], data = HNEW_RESAMPLED, cmap = 'jet',cbar = True,cbar_ax=CBAR_AXIS_ARRAY)
+    PLT.figure()
+    SNS.heatmap(ax = AXIS_ARRAY[0], data = THETA_RESAMPLED, cmap = 'jet',cbar = False)
+    SNS.heatmap(ax = AXIS_ARRAY[1], data = HNEW_RESAMPLED, cmap = 'jet',cbar = False)
+
+#    PLT.clear()
  
+FIGURE, AXIS_ARRAY = PLT.subplots(1,2,sharex=True,sharey=True)
 
-ANIMATION = animation.FuncAnimation(FIGURE, DATE_SEQUENCE, frames=range(0,NUM_DAYS),repeat=False)
+SNS.heatmap(ax = AXIS_ARRAY[0], data = THETA_RESAMPLED, cmap = 'jet',cbar = True)
+SNS.heatmap(ax = AXIS_ARRAY[1], data = HNEW_RESAMPLED, cmap = 'jet',cbar = True)
 
-PLT.show(block = False)
+ANIMATION = animation.FuncAnimation(FIGURE, DATE_SEQUENCE, frames=range(0,4),repeat=False)
+
+#PLT.show(block = False)
 #ANIMATION.save(filename="Animation_1.mpeg", writer=animation.FFMpegWriter())
-ANIMATION.save("ANIMATION_AK.gif", dpi=600, writer=PillowWriter(fps=2))
-PLT.close()
+#ANIMATION.save("ANIMATION_AK.gif", dpi=600, writer=PillowWriter(fps=2))
+#PLT.close()
 #PLT.ioff()
-#PLT.show()
+PLT.show()
 
 #print(UNIQUE_DATES)
 print(X_ARRAY)
