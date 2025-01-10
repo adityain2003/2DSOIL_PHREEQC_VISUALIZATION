@@ -60,8 +60,9 @@ Y_ARRAY_FLATTENED = Y_ARRAY.ravel()
 #####################################
 ####    ANIMATION AND PLOTTING  #####
 #####################################
-FIGURE, AXIS_ARRAY = PLT.subplots(1,2, figsize = (20,20)) #(1,1,sharex=True,sharey=True)
-PLT.tight_layout()
+FIGURE, AXIS_ARRAY = PLT.subplots(1,3, figsize = (9,6)) #(1,1,sharex=True,sharey=True)
+#PLT.tight_layout()
+PLT.subplots_adjust(hspace=0.2)
 #AXIS_ARRAY[0].set_aspect('equal')
 
 THETA_ARRAY = FIELDS_PD[["A_CONC"]].to_numpy()
@@ -86,7 +87,8 @@ THETA_ARRAY_TIMESTEP = NP.zeros(NUM_NODES,dtype=float)
 HNEW_ARRAY_TIMESTEP = NP.zeros(NUM_NODES,dtype=float)
 C_CONC_ARRAY_TIMESTEP = NP.zeros(NUM_NODES,dtype=float)
 
-FIGURE, AXIS_ARRAY = PLT.subplots(1,3) #(1,1,sharex=True,sharey=True)
+FIGURE, AXIS_ARRAY = PLT.subplots(1,3, figsize = (9,6)) #(1,1,sharex=True,sharey=True)
+PLT.subplots_adjust(hspace=0.2)
 
 J = 0
 for I in range(0,NUM_NODES):
@@ -130,14 +132,14 @@ C_CONC_FIGURE_TIMESTEP = AXIS_ARRAY[2].imshow(C_CONC_ARRAY_RESAMPLED, #animated 
 AXIS_ARRAY[2].set_title('C')
 
 
-PLT.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY[0], boundaries = NP.linspace(THETA_ARRAY_MIN+10,THETA_ARRAY_MAX,6))
-PLT.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY[1], boundaries = NP.linspace(HNEW_ARRAY_MIN+10,HNEW_ARRAY_MAX,6))
-PLT.colorbar(C_CONC_FIGURE_TIMESTEP,ax=AXIS_ARRAY[2], boundaries = NP.linspace(C_CONC_ARRAY_MIN+10,C_CONC_ARRAY_MAX,6))
+PLT.colorbar(THETA_FIGURE_TIMESTEP,ax=AXIS_ARRAY[0], boundaries = NP.linspace(THETA_ARRAY_MIN,THETA_ARRAY_MAX,6))
+PLT.colorbar(HNEW_FIGURE_TIMESTEP,ax=AXIS_ARRAY[1], boundaries = NP.linspace(HNEW_ARRAY_MIN,HNEW_ARRAY_MAX,6))
+PLT.colorbar(C_CONC_FIGURE_TIMESTEP,ax=AXIS_ARRAY[2], boundaries = NP.linspace(C_CONC_ARRAY_MIN,C_CONC_ARRAY_MAX,6))
 
 
 def DATE_SEQUENCE(J):
 
-    FIGURE.suptitle('#AK State Variables from 2 D Soil on '+UNIQUE_DATES[J])
+    FIGURE.suptitle('Concentration of Species on '+UNIQUE_DATES[J])
 
     for I in range(0,NUM_NODES):
         THETA_ARRAY_TIMESTEP[I] = THETA_ARRAY[I+J*NUM_NODES]
